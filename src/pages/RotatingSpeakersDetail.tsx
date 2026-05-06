@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { RotatingSpeakers } from '@/components/ui/rotating-speakers'
 import { RotatingSpeakersMobile } from '@/components/ui/rotating-speakers-mobile'
 import { RotatingSpeakersSemicircle } from '@/components/ui/rotating-speakers-semicircle'
+import { LivingConstellation } from '@/components/ui/living-constellation'
 import { speakers } from '@/data/speakers'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -12,6 +13,7 @@ import { ArrowLeft, Code } from 'lucide-react'
 import rotatingSpeakersSource from '@/components/ui/rotating-speakers.tsx?raw'
 import rotatingSpeakersMobileSource from '@/components/ui/rotating-speakers-mobile.tsx?raw'
 import rotatingSpeakersSemicircleSource from '@/components/ui/rotating-speakers-semicircle.tsx?raw'
+import livingConstellationSource from '@/components/ui/living-constellation.tsx?raw'
 import speakersDataSource from '@/data/speakers.ts?raw'
 
 function useIsMobile(breakpoint = 768) {
@@ -31,12 +33,15 @@ export default function RotatingSpeakersDetail() {
   const navigate = useNavigate()
   const [exportOpen, setExportOpen] = useState(false)
   const isMobile = useIsMobile(1024)
-  const [version, setVersion] = useState<'original' | 'semicircle'>('original')
+  const [version, setVersion] = useState<'original' | 'semicircle' | 'constellation'>('original')
   const [ringSpeeds, setRingSpeeds] = useState<[number, number, number]>([20, 34, 48])
 
-  const combinedSource = version === 'semicircle'
-    ? `// rotating-speakers-semicircle.tsx\n${rotatingSpeakersSemicircleSource}\n\n// speakers.ts (data)\n${speakersDataSource}`
-    : `// rotating-speakers.tsx\n${rotatingSpeakersSource}\n\n// rotating-speakers-mobile.tsx\n${rotatingSpeakersMobileSource}\n\n// speakers.ts (data)\n${speakersDataSource}`
+  const combinedSource =
+    version === 'semicircle'
+      ? `// rotating-speakers-semicircle.tsx\n${rotatingSpeakersSemicircleSource}\n\n// speakers.ts (data)\n${speakersDataSource}`
+      : version === 'constellation'
+        ? `// living-constellation.tsx\n${livingConstellationSource}\n\n// speakers.ts (data)\n${speakersDataSource}`
+        : `// rotating-speakers.tsx\n${rotatingSpeakersSource}\n\n// rotating-speakers-mobile.tsx\n${rotatingSpeakersMobileSource}\n\n// speakers.ts (data)\n${speakersDataSource}`
 
   return (
     <div className="space-y-6">
@@ -70,37 +75,46 @@ export default function RotatingSpeakersDetail() {
         </p>
       </header>
 
-      {!isMobile && (
-        <div className="flex items-start gap-8">
-          <div className="flex items-center gap-2">
-            <Label className="text-base text-text-secondary font-light shrink-0">
-              Version
-            </Label>
-            <div className="flex rounded-md border border-border-default overflow-hidden">
-              <button
-                className={`px-3 py-1.5 text-[14px] transition-colors ${
-                  version === 'original'
-                    ? 'bg-text-primary text-white'
-                    : 'text-text-secondary hover:bg-surface-raised'
-                }`}
-                onClick={() => setVersion('original')}
-              >
-                Original
-              </button>
-              <button
-                className={`px-3 py-1.5 text-[14px] transition-colors ${
-                  version === 'semicircle'
-                    ? 'bg-text-primary text-white'
-                    : 'text-text-secondary hover:bg-surface-raised'
-                }`}
-                onClick={() => setVersion('semicircle')}
-              >
-                Semi-circle
-              </button>
-            </div>
+      <div className="flex items-start gap-4 lg:gap-8 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Label className="text-base text-text-secondary font-light shrink-0">
+            Version
+          </Label>
+          <div className="flex rounded-md border border-border-default overflow-hidden">
+            <button
+              className={`px-3 py-1.5 text-[14px] transition-colors ${
+                version === 'original'
+                  ? 'bg-text-primary text-white'
+                  : 'text-text-secondary hover:bg-surface-raised'
+              }`}
+              onClick={() => setVersion('original')}
+            >
+              Original
+            </button>
+            <button
+              className={`px-3 py-1.5 text-[14px] transition-colors ${
+                version === 'semicircle'
+                  ? 'bg-text-primary text-white'
+                  : 'text-text-secondary hover:bg-surface-raised'
+              }`}
+              onClick={() => setVersion('semicircle')}
+            >
+              Semi-circle
+            </button>
+            <button
+              className={`px-3 py-1.5 text-[14px] transition-colors ${
+                version === 'constellation'
+                  ? 'bg-text-primary text-white'
+                  : 'text-text-secondary hover:bg-surface-raised'
+              }`}
+              onClick={() => setVersion('constellation')}
+            >
+              Constellation
+            </button>
           </div>
+        </div>
 
-          {version === 'semicircle' && (
+        {!isMobile && version === 'semicircle' && (
             <div className="flex items-center gap-4">
               <Label className="text-base text-text-secondary font-light shrink-0">
                 For Didier
@@ -127,26 +141,46 @@ export default function RotatingSpeakersDetail() {
                   </span>
                 </div>
               ))}
-            </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       {isMobile ? (
-        <div
-          className="relative -mx-16 overflow-x-clip"
-          style={{ background: 'var(--BG-Main, linear-gradient(0deg, #E5EBFF 19.98%, #FBFAFC 100%))' }}
-        >
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#FBFAFC] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#E8EDFF] to-transparent z-10 pointer-events-none" />
-          <img
-            src="/speakers/bg/DC8-Moon-BG-Element.svg"
-            alt=""
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ height: '50vh', objectFit: 'contain' }}
-          />
-          <RotatingSpeakersMobile speakers={speakers} />
-        </div>
+        version === 'constellation' ? (
+          <div
+            className="relative -mx-16 overflow-hidden"
+            style={{
+              background: 'var(--BG-Main, linear-gradient(0deg, #E5EBFF 19.98%, #FBFAFC 100%))',
+              height: 'min(150vw, calc(100vh - 220px))',
+              minHeight: 640,
+            }}
+          >
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#FBFAFC] to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#E8EDFF] to-transparent z-10 pointer-events-none" />
+            <img
+              src="/speakers/bg/DC8-Moon-BG-Element.svg"
+              alt=""
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ height: '88%', objectFit: 'contain' }}
+            />
+            <LivingConstellation speakers={speakers} />
+          </div>
+        ) : (
+          <div
+            className="relative -mx-16 overflow-x-clip"
+            style={{ background: 'var(--BG-Main, linear-gradient(0deg, #E5EBFF 19.98%, #FBFAFC 100%))' }}
+          >
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#FBFAFC] to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#E8EDFF] to-transparent z-10 pointer-events-none" />
+            <img
+              src="/speakers/bg/DC8-Moon-BG-Element.svg"
+              alt=""
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ height: '50vh', objectFit: 'contain' }}
+            />
+            <RotatingSpeakersMobile speakers={speakers} />
+          </div>
+        )
       ) : (
         <div
           className="relative w-full rounded-xl border border-border overflow-hidden"
@@ -174,8 +208,10 @@ export default function RotatingSpeakersDetail() {
           />
           {version === 'original' ? (
             <RotatingSpeakers speakers={speakers} />
-          ) : (
+          ) : version === 'semicircle' ? (
             <RotatingSpeakersSemicircle speakers={speakers} ringSpeeds={ringSpeeds} />
+          ) : (
+            <LivingConstellation speakers={speakers} />
           )}
         </div>
       )}
